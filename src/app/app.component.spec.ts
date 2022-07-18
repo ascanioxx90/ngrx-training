@@ -1,7 +1,9 @@
-import {Spectator, createComponentFactory, byText} from '@ngneat/spectator';
+import {byText, createComponentFactory, Spectator} from '@ngneat/spectator';
 import {AppComponent} from "./app.component";
 import {ChildrenOutletContexts, Router, RouterModule} from "@angular/router";
 import {provideMockStore} from "@ngrx/store/testing";
+import {Store} from "@ngrx/store";
+import {upperCaseName} from "./store/app/app.actions";
 
 describe('AppComponent', () => {
   let spectator: Spectator<AppComponent>;
@@ -14,7 +16,7 @@ describe('AppComponent', () => {
     component: AppComponent,
     imports: [RouterModule],
     providers: [provideMockStore({initialState})],
-    mocks: [Router, ChildrenOutletContexts]
+    mocks: [Router, ChildrenOutletContexts],
   });
 
   beforeEach(() => spectator = createComponent());
@@ -23,7 +25,7 @@ describe('AppComponent', () => {
     expect(spectator.component).toBeDefined();
   });
 
-  it('should have a default name',  (done) => {
+  it('should have a default name', (done) => {
     expect(spectator.component.name$.subscribe(name => {
       expect(name).toBe('ngrx-training-test');
       done();
@@ -37,7 +39,7 @@ describe('AppComponent', () => {
 
   it('should output a <button> with "Go to Users List"', () => {
     spectator.fixture.detectChanges();
-    expect(spectator.query('button')?.innerHTML).toBe('Show Users');
+    expect(spectator.queryAll('button')[3]?.innerHTML).toBe('Show Users');
   });
 
   it('should redirect to users page on <button> "Go to Users List" click ', async () => {
@@ -45,5 +47,13 @@ describe('AppComponent', () => {
     spectator.fixture.detectChanges();
     spectator.click(byText('Show Users'));
     expect(router.navigate).toHaveBeenCalledWith(['users']);
+  });
+
+  it('should uppercase app name after "uppercase" button click', () => {
+    const store = spectator.inject(Store);
+    jest.spyOn(store, 'dispatch');
+    spectator.component.uppercaseAppName('ngrx-training-test');
+    spectator.fixture.detectChanges();
+    expect(store.dispatch).toHaveBeenCalledWith(upperCaseName({name: 'ngrx-training-test'}));
   });
 });

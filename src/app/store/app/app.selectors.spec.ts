@@ -1,5 +1,4 @@
 import {getAppName} from "./app.selectors";
-import {AppState} from "./app.reducer";
 import {State} from "../../reducers";
 
 

@@ -1,6 +1,16 @@
-<p >Name: {{name$ | async}}!</p>
+<div *ngIf="name$ | async as name">
+  <p >Name: {{name}}!</p>
+
+  <div>
+    <button (click)="uppercaseAppName(name)">UPPERCASE</button>
+    <button (click)="lowercaseAppName(name)">LOWERCASE</button>
+    <button (click)="reverseAppName(name)">REVERSE</button>
+  </div>
+</div>
 
 
-<button (click)="redirect()">Show Users</button>
+<div style="margin-top: 16px">
+  <button (click)="redirect()">Show Users</button>
+</div>
 
 <router-outlet></router-outlet>
