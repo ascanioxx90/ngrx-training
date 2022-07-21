@@ -1,15 +1,13 @@
 import {getAppName} from "./app.selectors";
-import {State} from "../../reducers";
+import {AppState} from "./app.reducer";
 
 
 describe('App Selectors', () => {
   it('should select the app name', () => {
-    const initialState: State = {
-      app: {
+    const initialState: AppState = {
         name: 'ngrx-training'
-      }
     }
-    const result = getAppName.projector(initialState.app);
+    const result = getAppName.projector(initialState);
     expect(result).toBe('ngrx-training');
   });
 });

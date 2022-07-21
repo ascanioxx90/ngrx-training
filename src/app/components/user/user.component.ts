@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
-import {Observable} from "rxjs";
-import {ActivatedRoute} from "@angular/router";
-import {map} from "rxjs/operators";
+import {Component} from '@angular/core';
+import {Observable, tap} from "rxjs";
+import {select, Store} from "@ngrx/store";
+import {State} from "../../reducers";
+import {loadUsers} from "../../store/user/user.actions";
+import {getUsers} from "../../store/user/user.selectors";
 
 @Component({
   selector: 'app-user',
@@ -12,7 +14,14 @@ export class UserComponent {
 
   users$: Observable<string[]>;
 
-  constructor(private route: ActivatedRoute) {
-    this.users$ = route.data.pipe(map( data => data.users));
+  constructor(private store: Store<State>) {
+    this.users$ = this.store.pipe(
+      select(getUsers),
+      tap(users => users.length === 0 && this.store.dispatch(loadUsers())),
+    )
+  }
+
+  reload() {
+    this.store.dispatch(loadUsers());
   }
 }

@@ -1,13 +1,17 @@
-import {Spectator, createRoutingFactory, byText} from '@ngneat/spectator';
+import {createComponentFactory, Spectator} from '@ngneat/spectator';
 import {UserComponent} from "./user.component";
-import {UserResolver} from "../../resolvers/user.resolver";
+import {provideMockStore} from "@ngrx/store/testing";
+import {Store} from "@ngrx/store";
+import {loadUsers} from "../../store/user/user.actions";
 
 describe('UserComponent', () => {
   let spectator: Spectator<UserComponent>;
-  const createComponent = createRoutingFactory({
+  const initialState = {
+    users: { users: ['Stefano', 'Aurora', 'Daniela', 'Toto'] }
+  };
+  const createComponent = createComponentFactory({
     component: UserComponent,
-    data: {users: ['Stefano', 'Aurora', 'Daniela', 'Toto']},
-    mocks: [UserResolver]
+    providers: [provideMockStore({initialState})],
   });
 
   beforeEach(() => spectator = createComponent());
@@ -22,6 +26,29 @@ describe('UserComponent', () => {
     spectator
       .queryAll('li')
       .map(li => li.textContent)
-      .forEach( (li, index) => expect(li).toBe(result[index]));
+      .forEach((li, index) => expect(li).toBe(result[index]));
+  });
+
+  // it('should dispatch LoadUser action on empty initial state', (done) => {
+  //   const store = spectator.inject(Store);
+  //   initialState.users.users = [];
+  //   jest.spyOn(store, 'select').mockReturnValue(of([]));
+  //   jest.spyOn(store, 'dispatch');
+  //   expect(store.dispatch).toHaveBeenCalledWith(loadUsers());
+  // });
+
+  it('should not dispatch LoadUser action with preloaded users', () => {
+    const store = spectator.inject(Store);
+    jest.spyOn(store, 'dispatch');
+    spectator.fixture.detectChanges();
+    expect(store.dispatch).toHaveBeenCalledTimes(0);
+  });
+
+  it('should dispatch LoadUser on reload method invocation', () => {
+    const store = spectator.inject(Store);
+    jest.spyOn(store, 'dispatch');
+    spectator.fixture.detectChanges();
+    spectator.component.reload();
+    expect(store.dispatch).toHaveBeenCalledWith(loadUsers());
   });
 });

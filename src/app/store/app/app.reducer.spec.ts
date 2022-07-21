@@ -12,7 +12,7 @@ describe('App Reducer', () => {
     });
   });
 
-  describe('uppecaseName action', () => {
+  describe('uppercaseName action', () => {
     it('it should to uppercase the current appName', () => {
       const initialState = {name: 'app name'};
       const newState: AppState = {name: 'APP NAME'}
