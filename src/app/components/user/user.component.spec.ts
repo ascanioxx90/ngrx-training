@@ -1,17 +1,18 @@
 import {createComponentFactory, Spectator} from '@ngneat/spectator';
 import {UserComponent} from "./user.component";
-import {provideMockStore} from "@ngrx/store/testing";
+import {MockStore, provideMockStore} from "@ngrx/store/testing";
 import {Store} from "@ngrx/store";
 import {loadUsers} from "../../store/user/user.actions";
+import {getUsers} from "../../store/user/user.selectors";
 
 describe('UserComponent', () => {
   let spectator: Spectator<UserComponent>;
   const initialState = {
-    users: { users: ['Stefano', 'Aurora', 'Daniela', 'Toto'] }
+    users: { users: [] }
   };
   const createComponent = createComponentFactory({
     component: UserComponent,
-    providers: [provideMockStore({initialState})],
+    providers: [provideMockStore({initialState, selectors: [{selector: getUsers, value: ['Stefano', 'Aurora', 'Daniela', 'Toto']}]})],
   });
 
   beforeEach(() => spectator = createComponent());
@@ -29,13 +30,22 @@ describe('UserComponent', () => {
       .forEach((li, index) => expect(li).toBe(result[index]));
   });
 
-  // it('should dispatch LoadUser action on empty initial state', (done) => {
-  //   const store = spectator.inject(Store);
-  //   initialState.users.users = [];
-  //   jest.spyOn(store, 'select').mockReturnValue(of([]));
-  //   jest.spyOn(store, 'dispatch');
-  //   expect(store.dispatch).toHaveBeenCalledWith(loadUsers());
-  // });
+  it('should load 4 users from selector on empty initial state', (done) => {
+    spectator.component.users$.subscribe(users => {
+      expect(users).toEqual(['Stefano', 'Aurora', 'Daniela', 'Toto']);
+      done();
+    });
+  });
+
+  it('should dispatch LoadUser action on empty initial state', (done) => {
+    const store = spectator.inject(MockStore);
+    store.overrideSelector(getUsers, () => [] )
+    jest.spyOn(store, 'dispatch');
+    spectator.component.users$.subscribe(users => {
+      expect(store.dispatch).toHaveBeenCalledWith(loadUsers())
+      done();
+    });
+  });
 
   it('should not dispatch LoadUser action with preloaded users', () => {
     const store = spectator.inject(Store);

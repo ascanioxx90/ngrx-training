@@ -1,5 +1,6 @@
 import {UsersState} from "./user.reducer";
-import {getUsers} from "./user.selectors";
+import {getUsers, selectUsers} from "./user.selectors";
+import {State} from "../../reducers";
 
 
 describe('User Selectors', () => {
@@ -9,5 +10,14 @@ describe('User Selectors', () => {
     }
     const result = getUsers.projector(initialState);
     expect(result).toStrictEqual([]);
+  });
+
+  it('should select the feature from root state', () => {
+    const initialState: State = {
+      app: { name: '' },
+      users: {users: []}
+    }
+    const result = selectUsers(initialState);
+    expect(result).toStrictEqual({users: []});
   });
 });
