@@ -28,8 +28,7 @@ import {UserEffects} from './store/user/user.effects';
       },
     }),
     StoreDevtoolsModule.instrument(),
-    EffectsModule.forRoot([]),
-    EffectsModule.forFeature([UserEffects])
+    EffectsModule.forRoot([UserEffects]),
   ],
   providers: [],
   bootstrap: [AppComponent]
